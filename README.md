@@ -14,7 +14,7 @@ Usage
 **CVars**
 
 * `random_melee_crits_version` - Melee Random Crits version
-* `random_melee_crits_only <0|1>` - sets whether only melee weapons should be allowed to randomly crit
+* `random_melee_crits_enabled <0|1>` - sets whether only melee weapons should be allowed to randomly crit
 
 Requirements
 ------------
@@ -26,10 +26,13 @@ Requirements
 Changelog
 ---------
 
+**1.0.1** (2013-10-02)
+* fixed documentation
+
 **1.0.0** (2013-10-02)
 * initial release
 
 Installation
 ------------
 
-1. Place `plugins/melee-random-crits.smx` in your `plugins` directory.
+1. Place `plugins/random-melee-crits.smx` in your `plugins` directory.
