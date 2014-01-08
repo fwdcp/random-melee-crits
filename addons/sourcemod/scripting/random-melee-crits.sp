@@ -9,6 +9,7 @@
 #define VERSION "1.1.0"
 
 new Handle:hEnabled = INVALID_HANDLE;
+new Handle:hDebug = INVALID_HANDLE;
 
 new bool:bEventHooked = false;
 
