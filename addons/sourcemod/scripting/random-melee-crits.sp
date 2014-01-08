@@ -7,7 +7,7 @@
 
 #define SLOT_MELEE 2
 
-#define VERSION "1.1.0"
+#define VERSION "1.2.0"
 
 new Handle:hEnabled = INVALID_HANDLE;
 new Handle:hDebug = INVALID_HANDLE;

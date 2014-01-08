@@ -26,6 +26,11 @@ Requirements
 Changelog
 ---------
 
+**1.2.0** (2014-01-07)
+* fixed race condition with TF2Items (bug in TF2Items?)
+* added debug
+* removed removal of attributes
+
 **1.1.0** (2014-01-07)
 * fixed plugin not using correct slot for melee
 * added nocrits tag when enabled
