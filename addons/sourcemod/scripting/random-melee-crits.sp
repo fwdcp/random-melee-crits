@@ -164,7 +164,7 @@ AddNoRandomCrits(iWeaponEntity)
 {
 	if (GetConVarBool(hDebug))
 	{
-		TF2Attrib_RemoveByName(iWeaponEntity, "crit mod disabled");
+		TF2Attrib_SetByName(iWeaponEntity, "crit mod disabled", 0.0);
 		TF2Attrib_ClearCache(iWeaponEntity);
 	}
 	else
@@ -175,13 +175,15 @@ AddNoRandomCrits(iWeaponEntity)
 }
 
 RemoveNoRandomCrits(iWeaponEntity)
-{
-	TF2Attrib_RemoveByName(iWeaponEntity, "crit mod disabled hidden");
-	TF2Attrib_ClearCache(iWeaponEntity);
-	
+{	
 	if (GetConVarBool(hDebug))
 	{
 		TF2Attrib_RemoveByName(iWeaponEntity, "crit mod disabled");
+		TF2Attrib_ClearCache(iWeaponEntity);
+	}
+	else
+	{
+		TF2Attrib_RemoveByName(iWeaponEntity, "crit mod disabled hidden");
 		TF2Attrib_ClearCache(iWeaponEntity);
 	}
 }
