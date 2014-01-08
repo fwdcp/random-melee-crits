@@ -88,31 +88,27 @@ public OnLibraryAdded(const String:name[])
 
 public OnEnabledChange(Handle:cvar, const String:oldVal[], const String:newVal[])
 {
-	for (new iClient = 1; iClient <= MaxClients; iClient++)
+	if (GetConVarBool(hEnabled))
 	{
-		if (!IsClientConnected(iClient) || !IsClientInGame(iClient) || !IsPlayerAlive(iClient))
+		for (new iClient = 1; iClient <= MaxClients; iClient++)
 		{
-			continue;
-		}
-		
-		for (new iSlot = 0; iSlot <= 5; iSlot++)
-		{
-			new iWeaponEntity = GetPlayerWeaponSlot(iClient, iSlot);
-			
-			if (iWeaponEntity == -1)
+			if (!IsClientConnected(iClient) || !IsClientInGame(iClient) || !IsPlayerAlive(iClient))
 			{
-				break;
+				continue;
 			}
-		
-			if (iSlot != SLOT_MELEE)
+			
+			for (new iSlot = 0; iSlot <= 5; iSlot++)
 			{
-				if (GetConVarBool(hEnabled))
+				new iWeaponEntity = GetPlayerWeaponSlot(iClient, iSlot);
+				
+				if (iWeaponEntity == -1)
 				{
-					AddNoRandomCrits(iWeaponEntity);
+					break;
 				}
-				else
+			
+				if (iSlot != SLOT_MELEE)
 				{
-					RemoveNoRandomCrits(iWeaponEntity);
+						AddNoRandomCrits(iWeaponEntity);
 				}
 			}
 		}
@@ -154,10 +150,17 @@ public TF2Items_OnGiveNamedItem_Post(client, String:classname[], itemDefinitionI
 		return;
 	}
 	
-	if (GetPlayerWeaponSlot(client, SLOT_MELEE) != entityIndex)
+	CreateTimer(0.1, Timer_CheckWeapon, entityIndex);
+}
+
+public Action:Timer_CheckWeapon(Handle:timer, any:data)
+{
+	if (GetPlayerWeaponSlot(client, SLOT_MELEE) != data)
 	{
-		AddNoRandomCrits(entityIndex);
+		AddNoRandomCrits(data);
 	}
+	
+	return Plugin_Handled;
 }
 
 AddNoRandomCrits(iWeaponEntity)
@@ -170,20 +173,6 @@ AddNoRandomCrits(iWeaponEntity)
 	else
 	{
 		TF2Attrib_SetByName(iWeaponEntity, "crit mod disabled hidden", 0.0);
-		TF2Attrib_ClearCache(iWeaponEntity);
-	}
-}
-
-RemoveNoRandomCrits(iWeaponEntity)
-{	
-	if (GetConVarBool(hDebug))
-	{
-		TF2Attrib_RemoveByName(iWeaponEntity, "crit mod disabled");
-		TF2Attrib_ClearCache(iWeaponEntity);
-	}
-	else
-	{
-		TF2Attrib_RemoveByName(iWeaponEntity, "crit mod disabled hidden");
 		TF2Attrib_ClearCache(iWeaponEntity);
 	}
 }
