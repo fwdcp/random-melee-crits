@@ -49,6 +49,7 @@ public OnPluginStart()
 {
 	CreateConVar("random_melee_crits_version", VERSION, "Melee Random Crits version", FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_CHEAT|FCVAR_DONTRECORD);
 	hEnabled = CreateConVar("random_melee_crits_enabled", "1", "sets whether only melee weapons should be allowed to randomly crit", FCVAR_PLUGIN|FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	hDebug = CreateConVar("random_melee_crits_debug", "0", "set whether the nocrit attribute is visible", FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_DONTRECORD, true, 0.0, true, 1.0);
 	
 	HookConVarChange(hEnabled, OnEnabledChange);
 	
@@ -159,13 +160,27 @@ public TF2Items_OnGiveNamedItem_Post(client, String:classname[], itemDefinitionI
 }
 
 AddNoRandomCrits(iWeaponEntity)
-{	
-	TF2Attrib_SetByName(iWeaponEntity, "crit mod disabled hidden", 0.0);
-	TF2Attrib_ClearCache(iWeaponEntity);
+{
+	if (GetConVarBool(hDebug))
+	{
+		TF2Attrib_RemoveByName(iWeaponEntity, "crit mod disabled");
+		TF2Attrib_ClearCache(iWeaponEntity);
+	}
+	else
+	{
+		TF2Attrib_SetByName(iWeaponEntity, "crit mod disabled hidden", 0.0);
+		TF2Attrib_ClearCache(iWeaponEntity);
+	}
 }
 
 RemoveNoRandomCrits(iWeaponEntity)
-{	
+{
 	TF2Attrib_RemoveByName(iWeaponEntity, "crit mod disabled hidden");
 	TF2Attrib_ClearCache(iWeaponEntity);
+	
+	if (GetConVarBool(hDebug))
+	{
+		TF2Attrib_RemoveByName(iWeaponEntity, "crit mod disabled");
+		TF2Attrib_ClearCache(iWeaponEntity);
+	}
 }
