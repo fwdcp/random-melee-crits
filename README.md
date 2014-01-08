@@ -26,6 +26,11 @@ Requirements
 Changelog
 ---------
 
+**1.1.0** (2014-01-07)
+* fixed plugin not using correct slot for melee
+* added nocrits tag when enabled
+* added enable/disable hook
+
 **1.0.1** (2013-10-02)
 * fixed documentation
 
