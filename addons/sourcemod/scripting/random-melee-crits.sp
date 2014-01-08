@@ -1,5 +1,6 @@
 #include <sourcemod>
 #include <sdktools>
+#include <smlib>
 #include <tf2attributes>
 #undef REQUIRE_EXTENSIONS
 #include <tf2items>
@@ -101,7 +102,7 @@ public OnEnabledChange(Handle:cvar, const String:oldVal[], const String:newVal[]
 			{
 				new iWeaponEntity = GetPlayerWeaponSlot(iClient, iSlot);
 				
-				if (iWeaponEntity == -1)
+				if (Weapon_IsValid(iWeaponEntity))
 				{
 					break;
 				}
@@ -131,7 +132,7 @@ public Event_Inventory(Handle:event, const String:name[], bool:dontBroadcast)
 	{
 		new iWeaponEntity = GetPlayerWeaponSlot(iClient, iSlot);
 		
-		if (iWeaponEntity == -1)
+		if (Weapon_IsValid(iWeaponEntity == -1))
 		{
 			break;
 		}
@@ -155,7 +156,7 @@ public TF2Items_OnGiveNamedItem_Post(client, String:classname[], itemDefinitionI
 
 public Action:Timer_CheckWeapon(Handle:timer, any:data)
 {
-	if (GetPlayerWeaponSlot(client, SLOT_MELEE) != data)
+	if (Weapon_IsValid(data) && GetPlayerWeaponSlot(Weapon_GetOwner(data), SLOT_MELEE) != data)
 	{
 		AddNoRandomCrits(data);
 	}
