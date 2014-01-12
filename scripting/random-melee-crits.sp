@@ -12,7 +12,7 @@
 
 #define SLOT_MELEE 2
 
-#define VERSION "1.3.0"
+#define VERSION "1.3.1"
 
 new Handle:hSelection = INVALID_HANDLE;
 new Handle:hDebug = INVALID_HANDLE;
@@ -111,14 +111,7 @@ public OnGameCritsChange(Handle:cvar, const String:oldVal[], const String:newVal
 		SetConVarBool(hGameCrits, true, true);
 	}
 	
-	if (GetConVarInt(hSelection) == ALL_WEAPONS_CRIT)
-	{
-		TagsCheck("nocrits", false);
-	}
-	else
-	{
-		TagsCheck("nocrits", true);
-	}
+	CreateTimer(0.1, Timer_SetTags);
 }
 
 public Event_Inventory(Handle:event, const String:name[], bool:dontBroadcast)
@@ -181,6 +174,18 @@ public Action:Timer_CheckWeapon(Handle:timer, any:data)
 	return Plugin_Handled;
 }
 
+public Action:Timer_SetTags(Handle:timer, any:data)
+{
+	if (GetConVarInt(hSelection) == ALL_WEAPONS_CRIT)
+	{
+		TagsCheck("nocrits", false);
+	}
+	else
+	{
+		TagsCheck("nocrits", true);
+	}
+}
+
 UpdateCritSelection()
 {
 	new iSelection = GetConVarInt(hSelection);
@@ -224,14 +229,7 @@ UpdateCritSelection()
 		SetConVarBool(hGameCrits, true, true);
 	}
 	
-	if (iSelection == ALL_WEAPONS_CRIT)
-	{
-		TagsCheck("nocrits", false);
-	}
-	else
-	{
-		TagsCheck("nocrits", true);
-	}
+	CreateTimer(0.1, Timer_SetTags);
 }
 
 AddNoRandomCrits(weapon)

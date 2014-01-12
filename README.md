@@ -28,6 +28,9 @@ Requirements
 Changelog
 ---------
 
+**1.3.1** (2014-01-12)
+* moved tag set to timer
+
 **1.3.0** (2014-01-12)
 * added handling of tf_weapon_criticals
 * added proper removal of attributes when switching states
