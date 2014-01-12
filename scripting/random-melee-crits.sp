@@ -164,16 +164,43 @@ public Action:Timer_CheckWeapon(Handle:timer, any:data)
 	return Plugin_Handled;
 }
 
-AddNoRandomCrits(iWeaponEntity)
+AddNoRandomCrits(weapon)
 {
 	if (GetConVarBool(hDebug))
 	{
-		TF2Attrib_SetByName(iWeaponEntity, "crit mod disabled", 0.0);
-		TF2Attrib_ClearCache(iWeaponEntity);
+		TF2Attrib_SetByName(weapon, "crit mod disabled", 0.0);
+		TF2Attrib_ClearCache(weapon);
 	}
 	else
 	{
-		TF2Attrib_SetByName(iWeaponEntity, "crit mod disabled hidden", 0.0);
-		TF2Attrib_ClearCache(iWeaponEntity);
+		TF2Attrib_SetByName(weapon, "crit mod disabled hidden", 0.0);
+		TF2Attrib_ClearCache(weapon);
 	}
+}
+
+RemoveNoRandomCrits(weapon)
+{
+	TF2Attrib_RemoveByName(weapon, "crit mod disabled");
+	TF2Attrib_RemoveByName(weapon, "crit mod disabled hidden");
+}
+
+CheckDefaultCritStatus(weapon)
+{
+	new iItemDefinitionIndex = GetEntProp(iWeaponEntity, Prop_Send, "m_iItemDefinitionIndex");
+	new iItemNumAttributes = TF2II_GetItemNumAttributes(iItemDefinitionIndex);
+	
+	for (new i = 0; i < iItemNumAttributes; i++)
+	{
+		new iItemAttributeID = TF2II_GetItemAttributeID(iItemDefinitionIndex, i);
+		
+		decl String:sAttributeName[32]; 
+		TF2II_GetAttributeNameByID(iItemAttributeID, sAttributeName, sizeof(sAttributeName));
+		
+		if (StrContains(sAttributeName, "crit mod disabled", false) && TF2II_GetItemAttributeValue(iItemDefinitionIndex, i) == 0.0)
+		{
+			return false;
+		}
+	}
+	
+	return true;
 }
