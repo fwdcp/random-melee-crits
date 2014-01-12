@@ -12,7 +12,7 @@
 
 #define SLOT_MELEE 2
 
-#define VERSION "1.2.0"
+#define VERSION "1.3.0"
 
 new Handle:hSelection = INVALID_HANDLE;
 new Handle:hDebug = INVALID_HANDLE;
@@ -24,7 +24,7 @@ public Plugin:myinfo =
 {
 	name = "Random Melee Crits",
 	author = "thesupremecommander",
-	description = "A plugin that disables random crits on all weapons except for melee weapons.",
+	description = "A plugin that can disable random crits on all weapons except for melee weapons.",
 	version = VERSION,
 	url = "http://steamcommunity.com/groups/fwdcp"
 };
