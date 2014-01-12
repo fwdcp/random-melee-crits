@@ -28,6 +28,9 @@ Requirements
 Changelog
 ---------
 
+**1.3.2** (2014-01-12)
+* fixed nocrits tag not being set for only melee crits
+
 **1.3.1** (2014-01-12)
 * moved tag set to timer
 
