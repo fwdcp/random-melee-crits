@@ -17,6 +17,7 @@
 new Handle:hSelection = INVALID_HANDLE;
 new Handle:hDebug = INVALID_HANDLE;
 new Handle:hGameCrits = INVALID_HANDLE;
+new Handle:hTags = INVALID_HANDLE;
 
 new bool:bEventHooked = false;
 
@@ -59,11 +60,11 @@ public OnPluginStart()
 	hSelection = CreateConVar("random_melee_crits_selection", "1", "sets which weapons should be allowed to randomly crit (0: no weapons, 1: melee weapons, 2: all weapons)", FCVAR_PLUGIN|FCVAR_NOTIFY, true, 0.0, true, 2.0);
 	hDebug = CreateConVar("random_melee_crits_debug", "0", "set whether the nocrit attribute is visible", FCVAR_PLUGIN|FCVAR_DONTRECORD, true, 0.0, true, 1.0);
 	hGameCrits = FindConVar("tf_weapon_criticals");
+	hTags = FindConVar("sv_tags");
 	
 	HookConVarChange(hSelection, OnSelectionChange);
 	HookConVarChange(hGameCrits, OnGameCritsChange);
-	
-	AutoExecConfig();
+	HookConVarChange(hTags, OnTagsChange);
 	
 	UpdateCritSelection();
 }
@@ -111,7 +112,12 @@ public OnGameCritsChange(Handle:cvar, const String:oldVal[], const String:newVal
 		SetConVarBool(hGameCrits, true, true);
 	}
 	
-	CreateTimer(0.1, Timer_SetTags);
+	SetTags();
+}
+
+public OnTagsChange(Handle:cvar, const String:oldVal[], const String:newVal[])
+{
+	SetTags();
 }
 
 public Event_Inventory(Handle:event, const String:name[], bool:dontBroadcast)
@@ -174,18 +180,6 @@ public Action:Timer_CheckWeapon(Handle:timer, any:data)
 	return Plugin_Handled;
 }
 
-public Action:Timer_SetTags(Handle:timer, any:data)
-{
-	if (GetConVarInt(hSelection) == ALL_WEAPONS_CRIT)
-	{
-		TagsCheck("nocrits", false);
-	}
-	else
-	{
-		TagsCheck("nocrits", true);
-	}
-}
-
 UpdateCritSelection()
 {
 	new iSelection = GetConVarInt(hSelection);
@@ -229,7 +223,7 @@ UpdateCritSelection()
 		SetConVarBool(hGameCrits, true, true);
 	}
 	
-	CreateTimer(0.1, Timer_SetTags);
+	SetTags();
 }
 
 AddNoRandomCrits(weapon)
@@ -271,4 +265,16 @@ CheckDefaultCritStatus(weapon)
 	}
 	
 	return true;
+}
+
+SetTags()
+{
+	if (GetConVarInt(hSelection) == ALL_WEAPONS_CRIT)
+	{
+		TagsCheck("nocrits", false);
+	}
+	else
+	{
+		TagsCheck("nocrits", true);
+	}
 }
