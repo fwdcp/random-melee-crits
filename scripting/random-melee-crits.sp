@@ -106,7 +106,7 @@ public OnGameCritsChange(Handle:cvar, const String:oldVal[], const String:newVal
 	{
 		SetConVarBool(hGameCrits, false, true);
 	}
-	else if (!GetConVarBool(hGameCrits))
+	else if (GetConVarInt(hSelection) != NO_WEAPONS_CRIT && !GetConVarBool(hGameCrits))
 	{
 		SetConVarBool(hGameCrits, true, true);
 	}
