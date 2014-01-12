@@ -23,13 +23,13 @@ public Plugin:myinfo =
 	url = "http://steamcommunity.com/groups/fwdcp"
 };
 
-stock TagsCheck(const String:tag[], bool:remove = false) // credits to DarthNinja
+stock TagsCheck(const String:tag[], bool:add = true) // credits to DarthNinja
 {
 	new Handle:hTags = FindConVar("sv_tags");
 	decl String:tags[255];
 	GetConVarString(hTags, tags, sizeof(tags));
 
-	if (StrContains(tags, tag, false) == -1 && !remove)
+	if (StrContains(tags, tag, false) == -1 && add)
 	{
 		decl String:newTags[255];
 		Format(newTags, sizeof(newTags), "%s,%s", tags, tag);
@@ -37,7 +37,7 @@ stock TagsCheck(const String:tag[], bool:remove = false) // credits to DarthNinj
 		SetConVarString(hTags, newTags);
 		GetConVarString(hTags, tags, sizeof(tags));
 	}
-	else if (StrContains(tags, tag, false) > -1 && remove)
+	else if (StrContains(tags, tag, false) > -1 && !add)
 	{
 		ReplaceString(tags, sizeof(tags), tag, "", false);
 		ReplaceString(tags, sizeof(tags), ",,", ",", false);
@@ -57,7 +57,7 @@ public OnPluginStart()
 	
 	AutoExecConfig();
 	
-	TagsCheck("nocrits", !GetConVarBool(hEnabled));
+	TagsCheck("nocrits", GetConVarBool(hEnabled));
 }
  
 public OnAllPluginsLoaded()
@@ -115,7 +115,7 @@ public OnEnabledChange(Handle:cvar, const String:oldVal[], const String:newVal[]
 		}
 	}
 	
-	TagsCheck("nocrits", !GetConVarBool(hEnabled));
+	TagsCheck("nocrits", GetConVarBool(hEnabled));
 }
 
 public Event_Inventory(Handle:event, const String:name[], bool:dontBroadcast)
