@@ -16,6 +16,7 @@
 
 new Handle:hSelection = INVALID_HANDLE;
 new Handle:hDebug = INVALID_HANDLE;
+new Handle:hGameCrits = INVALID_HANDLE;
 
 new bool:bEventHooked = false;
 
@@ -94,14 +95,14 @@ public OnLibraryAdded(const String:name[])
 	}
 }
 
-public OnEnabledChange(Handle:cvar, const String:oldVal[], const String:newVal[])
+public OnSelectionChange(Handle:cvar, const String:oldVal[], const String:newVal[])
 {
 	UpdateCritSelection();
 }
 
 public OnGameCritsChange(Handle:cvar, const String:oldVal[], const String:newVal[])
 {
-	if (iSelection == NO_WEAPONS_CRIT && GetConVarBool(hGameCrits))
+	if (GetConVarInt(hSelection) == NO_WEAPONS_CRIT && GetConVarBool(hGameCrits))
 	{
 		SetConVarBool(hGameCrits, false, true);
 	}
@@ -110,7 +111,7 @@ public OnGameCritsChange(Handle:cvar, const String:oldVal[], const String:newVal
 		SetConVarBool(hGameCrits, true, true);
 	}
 	
-	if (iSelection == ALL_WEAPONS_CRIT)
+	if (GetConVarInt(hSelection) == ALL_WEAPONS_CRIT)
 	{
 		TagsCheck("nocrits", false);
 	}
@@ -169,11 +170,11 @@ public Action:Timer_CheckWeapon(Handle:timer, any:data)
 	{
 		if (GetConVarInt(hSelection) == MELEE_WEAPONS_CRIT)
 		{
-			AddNoRandomCrits(iWeaponEntity);
+			AddNoRandomCrits(data);
 		}
-		else if (CheckDefaultCritStatus(iWeaponEntity))
+		else if (CheckDefaultCritStatus(data))
 		{
-			RemoveNoRandomCrits(iWeaponEntity);
+			RemoveNoRandomCrits(data);
 		}
 	}
 	
@@ -182,7 +183,7 @@ public Action:Timer_CheckWeapon(Handle:timer, any:data)
 
 UpdateCritSelection()
 {
-	iSelection = GetConVarInt(hSelection);
+	new iSelection = GetConVarInt(hSelection);
 	
 	for (new iClient = 1; iClient <= MaxClients; iClient++)
 	{
@@ -255,7 +256,7 @@ RemoveNoRandomCrits(weapon)
 
 CheckDefaultCritStatus(weapon)
 {
-	new iItemDefinitionIndex = GetEntProp(iWeaponEntity, Prop_Send, "m_iItemDefinitionIndex");
+	new iItemDefinitionIndex = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
 	new iItemNumAttributes = TF2II_GetItemNumAttributes(iItemDefinitionIndex);
 	
 	for (new i = 0; i < iItemNumAttributes; i++)
