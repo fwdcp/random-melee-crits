@@ -6,6 +6,10 @@
 #undef REQUIRE_EXTENSIONS
 #include <tf2items>
 
+#define NO_WEAPONS_CRIT 0
+#define MELEE_WEAPONS_CRIT 1
+#define ALL_WEAPONS_CRIT 2
+
 #define SLOT_MELEE 2
 
 #define VERSION "1.2.0"
@@ -53,8 +57,10 @@ public OnPluginStart()
 	CreateConVar("random_melee_crits_version", VERSION, "Melee Random Crits version", FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_CHEAT|FCVAR_DONTRECORD);
 	hSelection = CreateConVar("random_melee_crits_selection", "1", "sets which weapons should be allowed to randomly crit (0: no weapons, 1: melee weapons, 2: all weapons)", FCVAR_PLUGIN|FCVAR_NOTIFY, true, 0.0, true, 2.0);
 	hDebug = CreateConVar("random_melee_crits_debug", "0", "set whether the nocrit attribute is visible", FCVAR_PLUGIN|FCVAR_DONTRECORD, true, 0.0, true, 1.0);
+	hGameCrits = FindConVar("tf_weapon_criticals");
 	
 	HookConVarChange(hSelection, OnSelectionChange);
+	HookConVarChange(hGameCrits, OnGameCritsChange);
 	
 	AutoExecConfig();
 	
@@ -93,9 +99,30 @@ public OnEnabledChange(Handle:cvar, const String:oldVal[], const String:newVal[]
 	UpdateCritSelection();
 }
 
+public OnGameCritsChange(Handle:cvar, const String:oldVal[], const String:newVal[])
+{
+	if (iSelection == NO_WEAPONS_CRIT && GetConVarBool(hGameCrits))
+	{
+		SetConVarBool(hGameCrits, false, true);
+	}
+	else if (!GetConVarBool(hGameCrits))
+	{
+		SetConVarBool(hGameCrits, true, true);
+	}
+	
+	if (iSelection == ALL_WEAPONS_CRIT)
+	{
+		TagsCheck("nocrits", false);
+	}
+	else
+	{
+		TagsCheck("nocrits", true);
+	}
+}
+
 public Event_Inventory(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	if (GetConVarInt(hSelection) != 1)
+	if (GetConVarInt(hSelection) != MELEE_WEAPONS_CRIT)
 	{
 		return;
 	}
@@ -114,7 +141,7 @@ public Event_Inventory(Handle:event, const String:name[], bool:dontBroadcast)
 	
 		if (iSlot != SLOT_MELEE)
 		{
-			if (GetConVarInt(hSelection) == 1)
+			if (GetConVarInt(hSelection) == MELEE_WEAPONS_CRIT)
 			{
 				AddNoRandomCrits(iWeaponEntity);
 			}
@@ -128,7 +155,7 @@ public Event_Inventory(Handle:event, const String:name[], bool:dontBroadcast)
 
 public TF2Items_OnGiveNamedItem_Post(client, String:classname[], itemDefinitionIndex, itemLevel, itemQuality, entityIndex)
 {
-	if (GetConVarInt(hSelection) != 1)
+	if (GetConVarInt(hSelection) != MELEE_WEAPONS_CRIT)
 	{
 		return;
 	}
@@ -140,7 +167,7 @@ public Action:Timer_CheckWeapon(Handle:timer, any:data)
 {
 	if (Weapon_IsValid(data) && GetPlayerWeaponSlot(Weapon_GetOwner(data), SLOT_MELEE) != data)
 	{
-		if (GetConVarInt(hSelection) == 1)
+		if (GetConVarInt(hSelection) == MELEE_WEAPONS_CRIT)
 		{
 			AddNoRandomCrits(iWeaponEntity);
 		}
@@ -175,7 +202,7 @@ UpdateCritSelection()
 		
 			if (iSlot != SLOT_MELEE)
 			{
-				if (iSelection == 1)
+				if (iSelection == MELEE_WEAPONS_CRIT)
 				{
 					AddNoRandomCrits(iWeaponEntity);
 				}
@@ -187,13 +214,22 @@ UpdateCritSelection()
 		}
 	}
 	
-	if (iSelection != 2)
+	if (iSelection == NO_WEAPONS_CRIT)
 	{
-		TagsCheck("nocrits", true);
+		SetConVarBool(hGameCrits, false, true);
 	}
 	else
 	{
+		SetConVarBool(hGameCrits, true, true);
+	}
+	
+	if (iSelection == ALL_WEAPONS_CRIT)
+	{
 		TagsCheck("nocrits", false);
+	}
+	else
+	{
+		TagsCheck("nocrits", true);
 	}
 }
 
