@@ -2,6 +2,7 @@
 #include <sdktools>
 #include <smlib>
 #include <tf2attributes>
+#include <tf2itemsinfo>
 #undef REQUIRE_EXTENSIONS
 #include <tf2items>
 
@@ -9,7 +10,7 @@
 
 #define VERSION "1.2.0"
 
-new Handle:hEnabled = INVALID_HANDLE;
+new Handle:hSelection = INVALID_HANDLE;
 new Handle:hDebug = INVALID_HANDLE;
 
 new bool:bEventHooked = false;
@@ -50,19 +51,19 @@ stock TagsCheck(const String:tag[], bool:add = true) // credits to DarthNinja
 public OnPluginStart()
 {
 	CreateConVar("random_melee_crits_version", VERSION, "Melee Random Crits version", FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_CHEAT|FCVAR_DONTRECORD);
-	hEnabled = CreateConVar("random_melee_crits_enabled", "1", "sets whether only melee weapons should be allowed to randomly crit", FCVAR_PLUGIN|FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	hDebug = CreateConVar("random_melee_crits_debug", "0", "set whether the nocrit attribute is visible", FCVAR_PLUGIN|FCVAR_NOTIFY|FCVAR_DONTRECORD, true, 0.0, true, 1.0);
+	hSelection = CreateConVar("random_melee_crits_selection", "1", "sets which weapons should be allowed to randomly crit (0: no weapons, 1: melee weapons, 2: all weapons)", FCVAR_PLUGIN|FCVAR_NOTIFY, true, 0.0, true, 2.0);
+	hDebug = CreateConVar("random_melee_crits_debug", "0", "set whether the nocrit attribute is visible", FCVAR_PLUGIN|FCVAR_DONTRECORD, true, 0.0, true, 1.0);
 	
-	HookConVarChange(hEnabled, OnEnabledChange);
+	HookConVarChange(hSelection, OnSelectionChange);
 	
 	AutoExecConfig();
 	
-	TagsCheck("nocrits", GetConVarBool(hEnabled));
+	UpdateCritSelection();
 }
  
 public OnAllPluginsLoaded()
 {
-	if (!LibraryExists("tf2items") && bEventHooked)
+	if (!LibraryExists("tf2items") && !bEventHooked)
 	{
 		HookEvent("post_inventory_application", Event_Inventory);
 		bEventHooked = true;
@@ -89,38 +90,12 @@ public OnLibraryAdded(const String:name[])
 
 public OnEnabledChange(Handle:cvar, const String:oldVal[], const String:newVal[])
 {
-	if (GetConVarBool(hEnabled))
-	{
-		for (new iClient = 1; iClient <= MaxClients; iClient++)
-		{
-			if (!IsClientConnected(iClient) || !IsClientInGame(iClient) || !IsPlayerAlive(iClient))
-			{
-				continue;
-			}
-			
-			for (new iSlot = 0; iSlot <= 5; iSlot++)
-			{
-				new iWeaponEntity = GetPlayerWeaponSlot(iClient, iSlot);
-				
-				if (Weapon_IsValid(iWeaponEntity))
-				{
-					break;
-				}
-			
-				if (iSlot != SLOT_MELEE)
-				{
-						AddNoRandomCrits(iWeaponEntity);
-				}
-			}
-		}
-	}
-	
-	TagsCheck("nocrits", GetConVarBool(hEnabled));
+	UpdateCritSelection();
 }
 
 public Event_Inventory(Handle:event, const String:name[], bool:dontBroadcast)
 {
-	if (!GetConVarBool(hEnabled))
+	if (GetConVarInt(hSelection) != 1)
 	{
 		return;
 	}
@@ -139,14 +114,21 @@ public Event_Inventory(Handle:event, const String:name[], bool:dontBroadcast)
 	
 		if (iSlot != SLOT_MELEE)
 		{
-			AddNoRandomCrits(iWeaponEntity);
+			if (GetConVarInt(hSelection) == 1)
+			{
+				AddNoRandomCrits(iWeaponEntity);
+			}
+			else if (CheckDefaultCritStatus(iWeaponEntity))
+			{
+				RemoveNoRandomCrits(iWeaponEntity);
+			}
 		}
 	}
 }
 
 public TF2Items_OnGiveNamedItem_Post(client, String:classname[], itemDefinitionIndex, itemLevel, itemQuality, entityIndex)
 {
-	if (!GetConVarBool(hEnabled))
+	if (GetConVarInt(hSelection) != 1)
 	{
 		return;
 	}
@@ -158,10 +140,61 @@ public Action:Timer_CheckWeapon(Handle:timer, any:data)
 {
 	if (Weapon_IsValid(data) && GetPlayerWeaponSlot(Weapon_GetOwner(data), SLOT_MELEE) != data)
 	{
-		AddNoRandomCrits(data);
+		if (GetConVarInt(hSelection) == 1)
+		{
+			AddNoRandomCrits(iWeaponEntity);
+		}
+		else if (CheckDefaultCritStatus(iWeaponEntity))
+		{
+			RemoveNoRandomCrits(iWeaponEntity);
+		}
 	}
 	
 	return Plugin_Handled;
+}
+
+UpdateCritSelection()
+{
+	iSelection = GetConVarInt(hSelection);
+	
+	for (new iClient = 1; iClient <= MaxClients; iClient++)
+	{
+		if (!IsClientConnected(iClient) || !IsClientInGame(iClient) || !IsPlayerAlive(iClient))
+		{
+			continue;
+		}
+		
+		for (new iSlot = 0; iSlot <= 5; iSlot++)
+		{
+			new iWeaponEntity = GetPlayerWeaponSlot(iClient, iSlot);
+			
+			if (Weapon_IsValid(iWeaponEntity))
+			{
+				break;
+			}
+		
+			if (iSlot != SLOT_MELEE)
+			{
+				if (iSelection == 1)
+				{
+					AddNoRandomCrits(iWeaponEntity);
+				}
+				else if (CheckDefaultCritStatus(iWeaponEntity))
+				{
+					RemoveNoRandomCrits(iWeaponEntity);
+				}
+			}
+		}
+	}
+	
+	if (iSelection != 2)
+	{
+		TagsCheck("nocrits", true);
+	}
+	else
+	{
+		TagsCheck("nocrits", false);
+	}
 }
 
 AddNoRandomCrits(weapon)
