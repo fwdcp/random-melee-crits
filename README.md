@@ -22,11 +22,15 @@ Requirements
 
 * SourceMod
 * TF2Attributes
+* TF2Items
 * TF2ItemsInfo
-* TF2Items (optional)
 
 Changelog
 ---------
+
+**1.4.0** (2014-01-13)
+* made TF2Items a required dependency (fixes hooking errors)
+* fixed variable shadowing warning
 
 **1.3.2** (2014-01-12)
 * fixed nocrits tag not being set for only melee crits
