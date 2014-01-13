@@ -16,7 +16,7 @@
 new Handle:hSelection = INVALID_HANDLE;
 new Handle:hDebug = INVALID_HANDLE;
 new Handle:hGameCrits = INVALID_HANDLE;
-new Handle:hTags = INVALID_HANDLE;
+new Handle:hServerTags = INVALID_HANDLE;
 
 public Plugin:myinfo = 
 {
@@ -57,11 +57,11 @@ public OnPluginStart()
 	hSelection = CreateConVar("random_melee_crits_selection", "1", "sets which weapons should be allowed to randomly crit (0: no weapons, 1: melee weapons, 2: all weapons)", FCVAR_PLUGIN|FCVAR_NOTIFY, true, 0.0, true, 2.0);
 	hDebug = CreateConVar("random_melee_crits_debug", "0", "set whether the nocrit attribute is visible", FCVAR_PLUGIN|FCVAR_DONTRECORD, true, 0.0, true, 1.0);
 	hGameCrits = FindConVar("tf_weapon_criticals");
-	hTags = FindConVar("sv_tags");
+	hServerTags = FindConVar("sv_tags");
 	
 	HookConVarChange(hSelection, OnSelectionChange);
 	HookConVarChange(hGameCrits, OnGameCritsChange);
-	HookConVarChange(hTags, OnTagsChange);
+	HookConVarChange(hServerTags, OnTagsChange);
 	
 	UpdateCritSelection();
 }
