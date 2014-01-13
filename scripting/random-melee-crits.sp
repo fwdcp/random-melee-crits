@@ -3,7 +3,6 @@
 #include <smlib>
 #include <tf2attributes>
 #include <tf2itemsinfo>
-#undef REQUIRE_EXTENSIONS
 #include <tf2items>
 
 #define NO_WEAPONS_CRIT 0
@@ -18,8 +17,6 @@ new Handle:hSelection = INVALID_HANDLE;
 new Handle:hDebug = INVALID_HANDLE;
 new Handle:hGameCrits = INVALID_HANDLE;
 new Handle:hTags = INVALID_HANDLE;
-
-new bool:bEventHooked = false;
 
 public Plugin:myinfo = 
 {
@@ -68,33 +65,6 @@ public OnPluginStart()
 	
 	UpdateCritSelection();
 }
- 
-public OnAllPluginsLoaded()
-{
-	if (!LibraryExists("tf2items") && !bEventHooked)
-	{
-		HookEvent("post_inventory_application", Event_Inventory);
-		bEventHooked = true;
-	}
-}
- 
-public OnLibraryRemoved(const String:name[])
-{
-	if (StrEqual(name, "tf2items") && !bEventHooked)
-	{
-		HookEvent("post_inventory_application", Event_Inventory);
-		bEventHooked = true;
-	}
-}
- 
-public OnLibraryAdded(const String:name[])
-{
-	if (StrEqual(name, "tf2items") && bEventHooked)
-	{
-		UnhookEvent("post_inventory_application", Event_Inventory);
-		bEventHooked = false;
-	}
-}
 
 public OnSelectionChange(Handle:cvar, const String:oldVal[], const String:newVal[])
 {
@@ -118,39 +88,6 @@ public OnGameCritsChange(Handle:cvar, const String:oldVal[], const String:newVal
 public OnTagsChange(Handle:cvar, const String:oldVal[], const String:newVal[])
 {
 	SetTags();
-}
-
-public Event_Inventory(Handle:event, const String:name[], bool:dontBroadcast)
-{
-	if (GetConVarInt(hSelection) != MELEE_WEAPONS_CRIT)
-	{
-		return;
-	}
-	
-	new iUserId = GetEventInt(event, "userid");
-	new iClient = GetClientOfUserId(iUserId);
-	
-	for (new iSlot = 0; iSlot <= 5; iSlot++)
-	{
-		new iWeaponEntity = GetPlayerWeaponSlot(iClient, iSlot);
-		
-		if (Weapon_IsValid(iWeaponEntity == -1))
-		{
-			break;
-		}
-	
-		if (iSlot != SLOT_MELEE)
-		{
-			if (GetConVarInt(hSelection) == MELEE_WEAPONS_CRIT)
-			{
-				AddNoRandomCrits(iWeaponEntity);
-			}
-			else if (CheckDefaultCritStatus(iWeaponEntity))
-			{
-				RemoveNoRandomCrits(iWeaponEntity);
-			}
-		}
-	}
 }
 
 public TF2Items_OnGiveNamedItem_Post(client, String:classname[], itemDefinitionIndex, itemLevel, itemQuality, entityIndex)
