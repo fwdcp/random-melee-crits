@@ -3,6 +3,8 @@ Melee Random Crits
 
 A plugin for SourceMod that can disable random crits on all weapons except for melee weapons.
 
+Obsoleted in the 2014-10-30 update with the new ConVar "tf_weapon_criticals_melee" in combination with "tf_weapon_criticals".
+
 Features
 --------
 
